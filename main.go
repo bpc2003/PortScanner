@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"pp-scanner/dialer"
+	"pp-scanner/formatoutput"
 )
 
 var (
@@ -30,5 +31,5 @@ func main() {
 	}
 
 	ports := dialer.DialTCP(hostname, minport, maxport)
-	fmt.Println(ports)
+	fmt.Printf("%s", formatoutput.FormatOutput(ports))
 }
