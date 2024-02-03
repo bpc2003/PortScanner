@@ -6,11 +6,11 @@ import (
 	"time"
 )
 
-func Dial(hostname string, min, max int) (OpenPorts []int) {
+func DialTCP(hostname string, min, max int) (OpenPorts []int) {
 	for i := min; i <= max; i++ {
 		connStr := hostname + ":" + strconv.Itoa(i)
 
-		conn, err := net.DialTimeout("tcp", connStr, time.Second)
+		conn, err := net.DialTimeout("tcp", connStr, time.Millisecond*225)
 		if err != nil {
 			continue
 		}

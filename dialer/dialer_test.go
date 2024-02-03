@@ -5,8 +5,8 @@ import (
 	"testing"
 )
 
-func TestDialer(t *testing.T) {
-	got := Dial("google.com", 80, 81)
+func TestDialTCP(t *testing.T) {
+	got := DialTCP("google.com", 80, 81)
 	expected := []int{80}
 
 	if !reflect.DeepEqual(got, expected) {

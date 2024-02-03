@@ -29,6 +29,6 @@ func main() {
 		os.Exit(1)
 	}
 
-	ports := dialer.Dial(hostname, minport, maxport)
+	ports := dialer.DialTCP(hostname, minport, maxport)
 	fmt.Println(ports)
 }
