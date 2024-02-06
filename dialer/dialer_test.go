@@ -13,3 +13,12 @@ func TestDialTCP(t *testing.T) {
 		t.Errorf("got %v, expected %v", got, expected)
 	}
 }
+
+func TestDialUDP(t *testing.T) {
+	got := DialUDP("localhost", 8080, 8081)
+	expected := []int{8080}
+
+	if !reflect.DeepEqual(got, expected) {
+		t.Errorf("got %v, expected %v", got, expected)
+	}
+}
