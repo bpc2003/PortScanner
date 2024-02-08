@@ -1,10 +1,8 @@
 package dialer
 
 import (
-	"bytes"
 	"context"
 	"fmt"
-	"io"
 	"net"
 	"strconv"
 	"time"
@@ -27,8 +25,6 @@ func DialTCP(hostname string, min, max int) (OpenPorts []int) {
 
 func DialUDP(hostname string, min, max int) (OpenPorts []int) {
 	for i := min; i <= max; {
-		fmt.Println(i)
-
 		ch := make(chan int)
 		connStr := hostname + ":" + strconv.Itoa(i)
 
@@ -49,9 +45,7 @@ func DialUDP(hostname string, min, max int) (OpenPorts []int) {
 
 		select {
 		case <-ctx.Done():
-			fmt.Println("op cancelled")
 		case l := <-ch:
-			fmt.Println(l)
 			if l > 0 {
 				OpenPorts = append(OpenPorts, i)
 			}
@@ -64,9 +58,12 @@ func DialUDP(hostname string, min, max int) (OpenPorts []int) {
 
 func testUDP(conn *net.UDPConn, ch chan int) {
 	fmt.Fprintln(conn, "PING")
+	buf := make([]byte, 8192)
 
-	var buf bytes.Buffer
-	io.Copy(&buf, conn)
-
-	ch <- buf.Len()
+	_, err := conn.Read(buf)
+	if err != nil {
+		ch <- 0
+		return
+	}
+	ch <- len(buf)
 }
