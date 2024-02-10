@@ -13,6 +13,7 @@ var (
 	minport  int
 	maxport  int
 	udp      bool
+	invert   bool
 )
 
 func main() {
@@ -20,6 +21,7 @@ func main() {
 	flag.IntVar(&minport, "min", 1, "-min [lowest port #]")
 	flag.IntVar(&maxport, "max", 65535, "-max [highest port #]")
 	flag.BoolVar(&udp, "u", false, "-u [scan for udp portss]")
+	flag.BoolVar(&invert, "v", false, "-v [show closed ports]")
 	flag.Parse()
 
 	if hostname == "" {
@@ -33,9 +35,9 @@ func main() {
 
 	var ports []int
 	if !udp {
-		ports = dialer.DialTCP(hostname, minport, maxport)
+		ports = dialer.DialTCP(hostname, minport, maxport, invert)
 	} else {
-		ports = dialer.DialUDP(hostname, minport, maxport)
+		ports = dialer.DialUDP(hostname, minport, maxport, invert)
 	}
-	fmt.Printf("%s", formatoutput.FormatOutput(ports))
+	fmt.Printf("%s", formatoutput.FormatOutput(ports, invert))
 }

@@ -4,29 +4,35 @@ import (
 	"context"
 	"fmt"
 	"net"
-	"strconv"
 	"time"
 )
 
-func DialTCP(hostname string, min, max int) (OpenPorts []int) {
+func DialTCP(hostname string, min, max int, invert bool) (OpenPorts []int) {
 	for i := min; i <= max; i++ {
-		connStr := hostname + ":" + strconv.Itoa(i)
+		connStr := fmt.Sprintf("%s:%d", hostname, i)
 
 		conn, err := net.DialTimeout("tcp", connStr, time.Millisecond*225)
 		if err != nil {
+			if invert {
+				OpenPorts = append(OpenPorts, i)
+			}
 			continue
 		}
 		defer conn.Close()
-		OpenPorts = append(OpenPorts, i)
+
+		if !invert {
+			OpenPorts = append(OpenPorts, i)
+		}
+
 	}
 
 	return
 }
 
-func DialUDP(hostname string, min, max int) (OpenPorts []int) {
-	for i := min; i <= max; {
+func DialUDP(hostname string, min, max int, invert bool) (OpenPorts []int) {
+	for i := min; i <= max; i++ {
 		ch := make(chan int)
-		connStr := hostname + ":" + strconv.Itoa(i)
+		connStr := fmt.Sprintf("%s:%d", hostname, i)
 
 		raddr, err := net.ResolveUDPAddr("udp", connStr)
 		if err != nil {
@@ -37,20 +43,20 @@ func DialUDP(hostname string, min, max int) (OpenPorts []int) {
 		if err != nil {
 			continue
 		}
-		defer conn.Close()
 
-		ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+		ctx, cancel := context.WithTimeout(context.Background(), time.Millisecond*225)
 		defer cancel()
 		go testUDP(conn, ch)
 
 		select {
 		case <-ctx.Done():
 		case l := <-ch:
-			if l > 0 {
+			if l > 0 && !invert {
+				OpenPorts = append(OpenPorts, i)
+			} else if l == 0 && invert {
 				OpenPorts = append(OpenPorts, i)
 			}
 		}
-		i++
 	}
 
 	return
